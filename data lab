@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mahasiswa Lab Instrumentasi & Elektronika 2023</title>
+  <style>
+    :root{
+      --primary:#1e3a8a;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --bg:#f8fafc;
+      --accent:#e0e7ff;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:var(--bg);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:24px;
+    }
+    header{
+      background:linear-gradient(90deg,var(--primary),#15327b);
+      color:white;
+      padding:20px;
+      border-radius:12px;
+      text-align:center;
+      box-shadow:0 6px 18px rgba(30,58,138,0.18);
+      margin-bottom:20px;
+    }
+    header h1{margin:0;font-size:1.25rem}
+    .container{max-width:900px;margin:0 auto}
+    .card{
+      background:var(--card);
+      border-radius:12px;
+      padding:18px;
+      box-shadow:0 6px 18px rgba(15,23,42,0.06);
+    }
+    .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    label{font-weight:600;color:var(--primary)}
+    select, input[type="search"]{
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid #d1d5db;
+      min-width:220px;
+    }
+    button{
+      background:var(--primary);
+      color:white;
+      padding:10px 14px;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+    button.secondary{
+      background:#fff;
+      color:var(--primary);
+      border:1px solid #c7d2fe;
+    }
+    .info{
+      margin-top:16px;
+      background:var(--accent);
+      padding:12px;
+      border-radius:8px;
+      display:none;
+    }
+    .info p{margin:6px 0}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:14px;
+    }
+    th,td{
+      text-align:left;
+      padding:10px 12px;
+      border-bottom:1px solid #eef2ff;
+    }
+    th{background:linear-gradient(90deg,#eef2ff,#f8fbff);color:var(--primary);font-weight:700}
+    tr:hover td{background:#fbfdff}
+    .actions{margin-left:auto;display:flex;gap:8px}
+    @media (max-width:640px){
+      .controls{flex-direction:column;align-items:stretch}
+      .actions{margin-left:0}
+    }
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:0.9rem}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mahasiswa Laboratorium Instrumentasi & Elektronika 2023</h1>
+    <div style="margin-top:6px;font-size:0.9rem;opacity:0.95">Pilih nama untuk melihat informasi laboratorium dan NIM</div>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <label for="pilihNama">Pilih Nama Mahasiswa</label><br/>
+          <select id="pilihNama" onchange="showInfoFromOption()">
+            <option value="">-- Pilih Mahasiswa --</option>
+
+            <!-- each option carries data attributes: data-nim & data-lab -->
+            <option data-nim="H021231007" data-lab="Instrumentasi">Dandi Hartono</option>
+            <option data-nim="H021231041" data-lab="Elektronika">Nur Alik Katu</option>
+            <option data-nim="H021231043" data-lab="Elektronika">Ansar Mubaroq</option>
+            <option data-nim="H021231027" data-lab="Instrumentasi">Muh Asnawi</option>
+            <option data-nim="H021231053" data-lab="Instrumentasi">Sri Wahyuni SM</option>
+            <option data-nim="H021231052" data-lab="Elektronika">Juliyati Puspita Sari</option>
+            <option data-nim="H021231067" data-lab="Instrumentasi">Nur Amalia</option>
+            <option data-nim="H021231022" data-lab="Elektronika">Sheira Abideva</option>
+            <option data-nim="H02131037" data-lab="Instrumentasi">Ulva Asriani Nur</option>
+            <option data-nim="H021231042" data-lab="Elektronika">Yemima Melanie Surya</option>
+            <option data-nim="H021231005" data-lab="Instrumentasi">Ruth Lebang</option>
+            <option data-nim="H021231063" data-lab="Elektronika">Febrinesya Alfa Tandi Lion</option>
+            <option data-nim="H021231055" data-lab="Instrumentasi">Taskiyatunnaps</option>
+            <option data-nim="H021231004" data-lab="Elektronika">Miswanja Batu Padang</option>
+          </select>
+        </div>
+
+        <div style="min-width:200px">
+          <label for="cari">Cari Nama</label><br/>
+          <input type="search" id="cari" placeholder="ketik nama..." oninput="filterTable()" />
+        </div>
+
+        <div class="actions">
+          <button type="button" onclick="toggleAll()">Tampilkan Semua Mahasiswa</button>
+          <button type="button" class="secondary" onclick="resetView()">Reset</button>
+        </div>
+      </div>
+
+      <div class="info" id="infoBox" aria-live="polite">
+        <p><strong>Nama:</strong> <span id="infoNama"></span></p>
+        <p><strong>NIM:</strong> <span id="infoNim"></span></p>
+        <p><strong>Laboratorium:</strong> <span id="infoLab"></span></p>
+      </div>
+
+      <div id="tableWrap" style="margin-top:12px;display:none">
+        <table id="mahasiswaTable" role="table" aria-label="Daftar Mahasiswa">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>NIM</th>
+              <th>Laboratorium</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- rows inserted by JS on first showAll call -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2023 Laboratorium Instrumentasi & Elektronika
+    </footer>
+  </div>
+
+  <script>
+    // Read all options to build a JS array when needed
+    function readStudentsFromOptions(){
+      const select = document.getElementById('pilihNama');
+      const arr = [];
+      for(let i=0;i<select.options.length;i++){
+        const opt = select.options[i];
+        if(!opt.value && !opt.getAttribute('data-nim')) {
+          // skip the placeholder (option with empty value)
+          continue;
+        }
+        const name = opt.text;
+        const nim = opt.getAttribute('data-nim') || '';
+        const lab = opt.getAttribute('data-lab') || '';
+        arr.push({name, nim, lab});
+      }
+      return arr;
+    }
+
+    // Show info when an option is selected (uses data-* attributes inside option)
+    function showInfoFromOption(){
+      const select = document.getElementById('pilihNama');
+      const idx = select.selectedIndex;
+      const opt = select.options[idx];
+
+      const infoBox = document.getElementById('infoBox');
+      if(!opt || !opt.getAttribute('data-nim')){
+        infoBox.style.display = 'none';
+        return;
+      }
+
+      document.getElementById('infoNama').textContent = opt.text;
+      document.getElementById('infoNim').textContent = opt.getAttribute('data-nim');
+      document.getElementById('infoLab').textContent = opt.getAttribute('data-lab');
+      infoBox.style.display = 'block';
+      // hide table when single info shown
+      document.getElementById('tableWrap').style.display = 'none';
+    }
+
+    // Toggle show all students (renders table if not yet rendered)
+    let tableRendered = false;
+    function toggleAll(){
+      const wrap = document.getElementById('tableWrap');
+      const infoBox = document.getElementById('infoBox');
+      infoBox.style.display = 'none';
+
+      if(!tableRendered){
+        renderTable();
+        tableRendered = true;
+      }
+      // toggle visibility
+      wrap.style.display = wrap.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Render table rows from options
+    function renderTable(){
+      const tbody = document.querySelector('#mahasiswaTable tbody');
+      tbody.innerHTML = '';
+      const students = readStudentsFromOptions();
+      students.forEach((s, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.nim)}</td>
+          <td>${escapeHtml(s.lab)}</td>
+        `;
+        // clicking a row will select that student in the dropdown and show info
+        tr.style.cursor = 'pointer';
+        tr.addEventListener('click', () => {
+          selectByName(s.name);
+          showInfoFromOption();
+          // scroll to info
+          document.getElementById('infoBox').scrollIntoView({behavior:'smooth',block:'center'});
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Utility: select the dropdown option by matching name
+    function selectByName(name){
+      const select = document.getElementById('pilihNama');
+      for(let i=0;i<select.options.length;i++){
+        if(select.options[i].text === name){
+          select.selectedIndex = i;
+          return;
+        }
+      }
+    }
+
+    // Simple client-side filter for the rendered table
+    function filterTable(){
+      const q = document.getElementById('cari').value.trim().toLowerCase();
+      const tbody = document.querySelector('#mahasiswaTable tbody');
+      if(!tableRendered) renderTable();
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      rows.forEach(r => {
+        const name = r.children[1].textContent.toLowerCase();
+        const nim = r.children[2].textContent.toLowerCase();
+        const lab = r.children[3].textContent.toLowerCase();
+        if(name.includes(q) || nim.includes(q) || lab.includes(q)){
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+      // ensure table visible while searching
+      document.getElementById('tableWrap').style.display = 'block';
+      document.getElementById('infoBox').style.display = 'none';
+    }
+
+    // Reset selection and hide extras
+    function resetView(){
+      document.getElementById('pilihNama').selectedIndex = 0;
+      document.getElementById('infoBox').style.display = 'none';
+      document.getElementById('cari').value = '';
+      document.getElementById('tableWrap').style.display = 'none';
+    }
+
+    // Very small HTML escape to avoid accidental injection from options text
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, function(m){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+      });
+    }
+
+    // allow pressing Enter in search to focus table
+    document.getElementById('cari').addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(!tableRendered) renderTable();
+        document.getElementById('tableWrap').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
